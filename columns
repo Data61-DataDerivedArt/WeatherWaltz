@@ -1,0 +1,37 @@
+Column numbers from BOM's CSV files.
+1 hm
+2 Station Number
+3 Year Month Day Hour Minutes in YYYY
+4 MM
+5 DD
+6 HH24
+7 MI format in Local time
+8 Year Month Day Hour Minutes in YYYY
+9 MM
+10 DD
+11 HH24
+12 MI format in Local standard time
+13 Precipitation since 9am local time in mm
+14 Quality of precipitation since 9am local time
+15 Air Temperature in degrees C
+16 Quality of air temperature
+17 Wet bulb temperature in degrees C
+18 Quality of Wet bulb temperature
+19 Dew point temperature in degrees C
+20 Quality of dew point temperature
+21 Relative humidity in percentage %
+22 Quality of relative humidity
+23 Vapour pressure in hPa
+24 Quality of vapour pressure
+25 Saturated vapour pressure in hPa
+26 Quality of saturated vapour pressure
+27 Wind speed in km/h
+28 Wind speed quality
+29 Wind direction in degrees true
+30 Wind direction quality
+31 Speed of maximum windgust in last 10 minutes in  km/h
+32 Quality of speed of maximum windgust in last 10 minutes
+33 Mean sea level pressure in hPa
+34 Quality of mean sea level pressure
+35 AWS Flag
+36 #

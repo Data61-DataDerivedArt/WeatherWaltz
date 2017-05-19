@@ -1,0 +1,130 @@
+#!/bin/sh
+
+d=`pwd`/BoM-AutomatedWeatherStations/Half_hourly_data/
+F=HM01X_Data_066037_999999998661926.txt #sydney airport
+F=HM01X_Data_066062_999999998661926.txt #Observatory Hill
+
+D=$d$F
+YEAR="1999"
+MONTH="05"
+DAYS="1[45]"
+
+Usage() {
+    echo >&2 "Usage: `basename $0` [ -d YYYY-MM-DD ] [ -f dataset ]"
+    exit 1
+}
+
+
+while getopts d:f: o
+do
+    case "$o" in
+	d) date="$OPTARG"
+	   YEAR=`expr "$date" : '\([12][0-9][0-9][0-9]\)-[01][0-9]-[0123][0-9]$'`
+	   MONTH=`expr "$date" : '[12][0-9][0-9][0-9]-\([01][0-9]\)-[0123][0-9]$'`
+	   DAYS=`expr "$date" :  '[12][0-9][0-9][0-9]-[01][0-9]-\([][0123][][0-9]\)$'`
+	   ;;
+	f)
+	    D="$OPTARG"
+	    ;;
+	[?]) Usage
+	     ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ 4 -ne `expr $YEAR : '[12][0-9][0-9][0-9]'`  -o \
+     2 -ne `expr $MONTH : '[01][0-9]'` -o \
+     ! $DAYS -o \
+     $# -ne 0 \
+]
+then
+    Usage
+fi
+
+awk -F','  -v yy="$YEAR" -v mm="$MONTH" -v dd="$DAYS" '
+function enchunk(nchunk, n, d, min, max,   j, chunk, sum)
+{
+	chunk = n / nchunk
+	j = 0
+
+	sum = 0
+	while (j <= i) {
+		if (j && (j % chunk == 0)) {
+			printf "%d", int(12 * ((sum /chunk) - min)/(max - min)) + 1
+			if (j!=i)
+				printf ", "
+			else
+				print ""
+
+
+			sum = 0
+		}
+		sum = sum + d[j]
+		j = j + 1
+	}
+}
+
+function chunkslope(nchunk, n, d, min, max,    j, chunk, slope)
+{
+    chunk = n / nchunk
+    while (j < n) {
+	slope = (d[j + chunk - 1] - d[j])/(chunk * (max - min))
+#	print slope
+	if (slope >= -0.0005) {
+	    slope = 11
+	} else if (slope <= -0.02) {
+	    slope = 2
+	} else {
+	    slope = 5
+	}
+	j = j + chunk
+	if (j != n)
+	    printf "%d, ", slope
+	else
+	    printf "%d\n", 11
+
+    }
+}
+
+BEGIN {
+	maxtemp = 0
+	mintemp = 90
+	minpressure=2000
+	maxpressure=0
+	minhumidity=100
+	maxhumidity=0
+	i=0
+}
+$3 ~ yy && $4 ~ mm && $5 ~ dd {
+	pressure=$33
+	humidity=$21
+	temp=$15
+
+	if (maxtemp < temp)
+		maxtemp=temp
+        if (mintemp > temp)
+		mintemp = temp
+	if (maxhumidity < humidity)
+		maxhumidity = humidity
+	if (minhumidity > humidity)
+		minhumidity = humidity
+	if (maxpressure < pressure)
+		maxpressure = pressure
+	if (minpressure > pressure)
+		minpressure = pressure
+
+	pressures[i] = pressure
+	humidities[i] = humidity
+	temps[i] = temp
+	i = i + 1
+}
+
+END {
+	# Generate dice with humidity
+	enchunk(16, i, humidities, minhumidity, maxhumidity)
+	print "-"
+	chunkslope(24, i, pressures, minpressure, maxpressure)	
+
+}' $D | PYTHON_PATH=`pwd`:$PYTHON_PATH ./dicewaltz.py -d0 -e ly  -l 'church organ' -o $YEAR-$MONTH-$DAYS.ly -T "humidity and pressure from $YEAR-$MONTH-$DAYS `basename $D`"
+
+lilypond $YEAR-$MONTH-$DAYS.ly
