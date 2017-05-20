@@ -28,10 +28,12 @@ the generated MIDI into a program like timidity.
 
 Some interesting dataset/day combinations are the Sydney Observatory
 data for 1999-05-14 when the massive hailstorm hit Sydney
-   musicgen -d 1999-05-1[45] -f HM01X_Data_066062_999999998661926.txt
-
+```
+    musicgen -d 1999-05-1[45] -f HM01X_Data_066062_999999998661926.txt
+```
 The day a mini tornado hit Sydney's East, from the Sydney Airport dataset:
+```
     musicgen -d 2010-06-0[4567] -f HM01X_Data_066037_999999998661926.txt
-
+```
 Sunny days without storms generate straight waltzes.
 
