@@ -19,9 +19,9 @@ while getopts d:f: o
 do
     case "$o" in
 	d) date="$OPTARG"
-	   YEAR=`expr "$date" : '\([12][0-9][0-9][0-9]\)-[01][0-9]-[0123][0-9]$'`
-	   MONTH=`expr "$date" : '[12][0-9][0-9][0-9]-\([01][0-9]\)-[0123][0-9]$'`
-	   DAYS=`expr "$date" :  '[12][0-9][0-9][0-9]-[01][0-9]-\([][0123][][0-9]\)$'`
+	   YEAR=`expr "$date" : '\([12][0-9][0-9][0-9]\)-[01][0-9]-[0123][][0-9]*$'`
+	   MONTH=`expr "$date" : '[12][0-9][0-9][0-9]-\([01][0-9]\)-[0123][][0-9]*$'`
+	   DAYS=`expr "$date" :  '[12][0-9][0-9][0-9]-[01][0-9]-\([][0123][][0-9]*\)$'`
 	   ;;
 	f)
 	    D="$OPTARG"
@@ -125,6 +125,9 @@ END {
 	print "-"
 	chunkslope(24, i, pressures, minpressure, maxpressure)	
 
-}' $D | PYTHON_PATH=`pwd`:$PYTHON_PATH ./dicewaltz.py -d0 -e ly  -l 'church organ' -o $YEAR-$MONTH-$DAYS.ly -T "humidity and pressure from $YEAR-$MONTH-$DAYS `basename $D`"
+}' $D |
+    PYTHON_PATH=`pwd`:$PYTHON_PATH ./dicewaltz.py -d0 -e ly \
+	       -l 'church organ' -o $YEAR-$MONTH-$DAYS.ly \
+	       -T "humidity and pressure from $YEAR-$MONTH-$DAYS `basename $D`"
 
 lilypond $YEAR-$MONTH-$DAYS.ly
